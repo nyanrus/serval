@@ -10,6 +10,7 @@ tokio-tungstenite = "0.24"
 futures = "0.3"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+url = "2.5"
 
 # Servo dependencies (these would be actual Servo crates in production)
 # For now, we'll create a minimal interface that could be replaced with real Servo

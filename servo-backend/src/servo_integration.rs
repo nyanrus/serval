@@ -22,7 +22,7 @@ impl ServoInstance {
         Self {}
     }
 
-    pub fn navigate(&mut, _url: &str) {
+    pub fn navigate(&mut self, _url: &str) {
         // In real implementation:
         // - Call Servo's navigation API
         // - self.webview.load_url(url)
