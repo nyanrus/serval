@@ -1,25 +1,41 @@
 # serval
 
-A simple browser UI built with Vite and React, featuring a Firefox-like interface with tab management and browseable internet capabilities.
+A simple browser UI built with Vite and React, featuring a Firefox-like interface with tab management and a **two-process architecture** for security and stability.
 
 ## Features
 
-- **Tab Management**: Create, switch, and close multiple tabs
+- **Two-Process Architecture**: Main process for browser UI, separate content processes for web rendering (like Firefox/Chrome)
+- **Tab Management**: Create, switch, and close multiple tabs, each with isolated content process
 - **Address Bar**: Navigate to URLs or search with automatic protocol handling
 - **Navigation Controls**: Back, forward, and refresh buttons
+- **Process Isolation**: Content crashes don't affect browser chrome
 - **Fast Development**: Vite's Hot Module Replacement (HMR) for instant updates
 - **Firefox-like UI**: Dark theme with modern browser aesthetics
 
+## Architecture
+
+Serval implements a **two-process browser architecture** similar to modern browsers:
+
+1. **Main Process** - Renders browser chrome UI (tabs, address bar, navigation)
+2. **Content Processes** - Isolated workers that render web content via Servo (one per tab)
+
+This provides:
+- ✅ **Security**: Web content isolated from browser UI
+- ✅ **Stability**: Content process crashes don't affect the browser
+- ✅ **Performance**: Parallel processing of UI and content
+
+See [TWO_PROCESS_ARCHITECTURE.md](TWO_PROCESS_ARCHITECTURE.md) for detailed documentation.
+
 ## Screenshots
 
-### Initial Browser View
-![Browser Initial State](https://github.com/user-attachments/assets/531a504d-0b1f-49d6-85a9-571be0428467)
+### Two-Process Architecture
+![Two-Process Architecture](https://github.com/user-attachments/assets/8d69b46c-e668-4d5e-a47e-281aac21eb17)
 
-### Browsing a Website
-![Browser with URL](https://github.com/user-attachments/assets/37e88299-d6a1-49ab-a2c5-812b48bebf76)
+### Content Rendering in Isolated Process
+![Browser with Content](https://github.com/user-attachments/assets/872eb956-6a4c-43f1-85d7-bf47ed710322)
 
-### Multiple Tabs
-![Browser Multiple Tabs](https://github.com/user-attachments/assets/c02461ea-a85c-4d31-8f67-8b7ed1a0c026)
+### Multiple Tabs with Separate Processes
+![Browser Multiple Tabs](https://github.com/user-attachments/assets/aa217cb6-a5a4-4ed4-a35f-d1bf458a89a0)
 
 ## Getting Started
 
@@ -27,20 +43,45 @@ A simple browser UI built with Vite and React, featuring a Firefox-like interfac
 
 - Node.js (v18 or higher recommended)
 - npm or yarn
+- **Rust and Cargo** (for Servo backend server)
+- Servo dependencies (see [SERVO_INTEGRATION_REAL.md](SERVO_INTEGRATION_REAL.md))
 
-### Quick Start
+### Setup
+
+**Important**: Serval requires a running Servo backend server. There is no mock mode.
 
 ```bash
-# Install dependencies
+# 1. Install frontend dependencies
 npm install
 
-# Start development server with HMR
+# 2. Build Servo backend server
+cd servo-backend
+cargo build --release
+
+# 3. Start the backend server (required!)
+cargo run --release
+# Server will listen on ws://localhost:8080
+```
+
+In a new terminal:
+
+```bash
+# 4. Start frontend
 npm run dev
 ```
 
-The browser will be available at `http://localhost:5173/`. The development server includes a mock Servo backend, so you can test the UI and navigation features without installing Servo.
+The browser will be available at `http://localhost:5173/` and will connect to the Servo backend at `ws://localhost:8080`.
 
-For detailed setup instructions, see [QUICKSTART.md](QUICKSTART.md).
+### Configuration
+
+Configure the WebSocket URL in `.env` (optional, defaults to `ws://localhost:8080`):
+
+```bash
+VITE_SERVO_WEBSOCKET_URL=ws://localhost:8080
+VITE_SERVO_DEBUG=true
+```
+
+See [SERVO_INTEGRATION_REAL.md](SERVO_INTEGRATION_REAL.md) for integrating with actual Servo browser engine.
 
 ### Installation
 
@@ -86,39 +127,64 @@ npm run lint
 ```
 serval/
 ├── src/
+│   ├── process/
+│   │   ├── MainProcess.ts           # Main process - browser chrome
+│   │   ├── ContentProcess.worker.ts # Content process - web rendering
+│   │   └── ProcessMessages.ts       # IPC message types
 │   ├── components/
-│   │   ├── TabBar.tsx          # Tab management component
+│   │   ├── TabBar.tsx               # Tab management component
 │   │   ├── TabBar.css
-│   │   ├── AddressBar.tsx      # URL/search input component
+│   │   ├── AddressBar.tsx           # URL/search input component
 │   │   ├── AddressBar.css
-│   │   ├── ServoView.tsx       # Servo content display component
+│   │   ├── ContentView.tsx          # Content display from processes
+│   │   ├── ContentView.css
+│   │   ├── ServoView.tsx            # Legacy Servo view (deprecated)
 │   │   └── ServoView.css
 │   ├── backend/
-│   │   └── ServoBackend.ts     # Servo backend communication
-│   ├── Browser.tsx              # Main browser component
+│   │   └── ServoBackend.ts          # Servo backend communication (legacy)
+│   ├── Browser.tsx                  # Main browser component
 │   ├── Browser.css
-│   ├── App.tsx                  # Application entry point
-│   ├── main.tsx                 # React root
-│   ├── config.ts                # Servo configuration
-│   ├── initBackend.ts           # Backend initialization
-│   └── index.css                # Global styles
-├── public/                      # Static assets
-├── index.html                   # HTML template
-├── vite.config.ts              # Vite configuration
-├── tsconfig.json               # TypeScript configuration
-└── package.json                # Dependencies and scripts
+│   ├── App.tsx                      # Application entry point
+│   ├── main.tsx                     # React root
+│   ├── config.ts                    # Servo configuration
+│   ├── initBackend.ts               # Backend initialization
+│   └── index.css                    # Global styles
+├── public/                           # Static assets
+├── index.html                        # HTML template
+├── vite.config.ts                   # Vite configuration
+├── tsconfig.json                    # TypeScript configuration
+├── package.json                     # Dependencies and scripts
+├── TWO_PROCESS_ARCHITECTURE.md      # Architecture documentation
+└── SERVO_INTEGRATION.md             # Servo integration guide
 ```
 
 ## Component Overview
 
+### MainProcess
+The main process that manages browser chrome:
+- Creates and manages tabs
+- Spawns content processes (Web Workers)
+- Routes IPC messages between UI and content
+- Handles process lifecycle and crashes
+
+### ContentProcess (Worker)
+Isolated content processes for web rendering:
+- One worker per tab for isolation
+- Handles web content rendering via Servo
+- Manages navigation history
+- Sends events to main process (title, URL changes)
+
 ### Browser
-The main component that orchestrates all sub-components and manages the browser state.
+The main React component that orchestrates the browser UI:
+- Renders tabs, address bar, and content view
+- Connects UI to MainProcess
+- Updates based on content process events
 
 ### TabBar
 Manages multiple tabs with:
-- Tab creation (+ button)
+- Tab creation (+ button) - spawns new content process
 - Tab switching (click on tab)
-- Tab closing (× button)
+- Tab closing (× button) - terminates content process
 - Active tab highlighting
 
 ### AddressBar
@@ -128,13 +194,20 @@ Provides navigation functionality:
 - Navigation controls (back, forward, refresh)
 - Automatic protocol handling (adds https:// if missing)
 
-### ServoView
-Displays web content through Servo backend:
-- Communicates with Servo backend (or mock in development) for rendering
-- Handles page title updates
-- Manages navigation events
+### ContentView
+Displays web content from isolated content processes:
+- Shows architecture diagram when empty
+- Displays simulated web content when URL is loaded
+- In production, would show actual Servo-rendered content
+- Indicates content is rendered in separate process
 
 ## Browser Features
+
+### Two-Process Architecture
+- **Process Isolation**: Each tab runs in its own Web Worker (content process)
+- **IPC Communication**: Typed message passing between main and content processes
+- **Crash Recovery**: Content crashes don't affect browser chrome
+- **Security**: Web content isolated from browser internals
 
 ### URL Handling
 - **Direct URLs**: Enter `example.com` → navigates to `https://example.com`
