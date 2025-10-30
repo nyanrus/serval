@@ -1,0 +1,55 @@
+.address-bar {
+  background: #2b2b2b;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.navigation-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.nav-button {
+  background: #353535;
+  border: 1px solid #444;
+  color: #e0e0e0;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.nav-button:hover:not(:disabled) {
+  background: #454545;
+}
+
+.nav-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.url-container {
+  flex: 1;
+  display: flex;
+}
+
+.url-input {
+  flex: 1;
+  background: #1e1e1e;
+  border: 1px solid #444;
+  color: #e0e0e0;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.url-input:focus {
+  outline: none;
+  border-color: #0a84ff;
+  background: #2b2b2b;
+}
