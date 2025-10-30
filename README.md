@@ -38,7 +38,7 @@ npm install
 npm run dev
 ```
 
-The browser will be available at `http://localhost:5173/`. The development server includes a mock Servo backend, so you can test the full integration without installing Servo.
+The browser will be available at `http://localhost:5173/`. The development server includes a mock Servo backend, so you can test the UI without installing Servo.
 
 For detailed setup instructions, see [QUICKSTART.md](QUICKSTART.md).
 
@@ -91,12 +91,16 @@ serval/
 │   │   ├── TabBar.css
 │   │   ├── AddressBar.tsx      # URL/search input component
 │   │   ├── AddressBar.css
-│   │   ├── BrowserView.tsx     # Web content display component
-│   │   └── BrowserView.css
+│   │   ├── ServoView.tsx       # Servo content display component
+│   │   └── ServoView.css
+│   ├── backend/
+│   │   └── ServoBackend.ts     # Servo backend communication
 │   ├── Browser.tsx              # Main browser component
 │   ├── Browser.css
 │   ├── App.tsx                  # Application entry point
 │   ├── main.tsx                 # React root
+│   ├── config.ts                # Servo configuration
+│   ├── initBackend.ts           # Backend initialization
 │   └── index.css                # Global styles
 ├── public/                      # Static assets
 ├── index.html                   # HTML template
@@ -124,11 +128,11 @@ Provides navigation functionality:
 - Navigation controls (back, forward, refresh)
 - Automatic protocol handling (adds https:// if missing)
 
-### BrowserView
-Displays web content:
-- Uses iframe for content rendering
+### ServoView
+Displays web content using Servo engine:
+- Communicates with Servo backend for rendering
 - Handles page title updates
-- Cross-origin safety with sandbox attributes
+- Manages navigation events
 
 ## Browser Features
 
@@ -153,10 +157,7 @@ Displays web content:
 
 ## About Servo Integration
 
-Serval is designed as a frontend UI for the [Servo browser engine](https://github.com/servo/servo), similar to how Firefox's UI sits on top of Gecko. The architecture supports two rendering modes:
-
-1. **Servo Backend Mode** (Production): Uses Servo engine for actual web rendering with full browser capabilities
-2. **Iframe Fallback Mode** (Development): Uses standard web iframes for rapid development and testing
+Serval is designed as a frontend UI for the [Servo browser engine](https://github.com/servo/servo), similar to how Firefox's UI sits on top of Gecko.
 
 ### How It Works
 
@@ -170,7 +171,6 @@ The integration consists of three layers:
 
 - **ServoBackend** (`src/backend/ServoBackend.ts`): Manages communication with Servo through message passing
 - **ServoView** (`src/components/ServoView.tsx`): React component that displays Servo-rendered content
-- **UnifiedBrowserView** (`src/components/UnifiedBrowserView.tsx`): Adapter that automatically selects between Servo and iframe modes
 
 ### Getting Started with Servo
 
@@ -179,7 +179,7 @@ For detailed information about setting up and using Servo as the backend, see [S
 **Quick Start (Development Mode)**:
 ```bash
 npm install
-npm run dev  # Runs with iframe fallback - no Servo required
+npm run dev  # Runs with mock Servo backend for development
 ```
 
 **Production Mode (with Servo)**:
