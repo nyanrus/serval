@@ -15,8 +15,6 @@ declare global {
 }
 
 export interface ServoBackendConfig {
-  // Path to Servo executable
-  servoPath?: string;
   // Enable debug mode
   debug?: boolean;
   // Custom user agent
@@ -48,7 +46,7 @@ export interface ServoMessage {
  * It provides methods to control navigation, manage tabs, and receive updates.
  */
 export class ServoBackend {
-  private config: ServoBackendConfig; // Will be used for future configuration options
+  private config: ServoBackendConfig;
   private messageHandlers: Map<string, (message: ServoMessage) => void>;
   private connected: boolean = false;
 
@@ -62,19 +60,13 @@ export class ServoBackend {
    * Initialize the connection to Servo backend
    */
   private async initialize(): Promise<void> {
-    // In a real implementation, this would:
-    // 1. Spawn Servo process if not running (using config.servoPath)
-    // 2. Establish IPC connection (WebSocket, stdio, etc.)
-    // 3. Set up message handlers
-    // 4. Configure Servo with userAgent and debug settings from config
-    
     if (this.isServoAvailable()) {
       this.setupMessageHandlers();
       this.connected = true;
       this.sendMessage({ type: 'ready' });
     } else {
       if (this.config.debug) {
-        console.warn('Servo backend not available. Falling back to iframe mode.');
+        console.warn('Servo backend not available.');
       }
     }
   }

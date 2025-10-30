@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import TabBar from './components/TabBar';
 import type { Tab } from './components/TabBar';
 import AddressBar from './components/AddressBar';
-import UnifiedBrowserView from './components/UnifiedBrowserView';
+import ServoView from './components/ServoView';
 import { getServoBackend } from './backend/ServoBackend';
 import './Browser.css';
 
@@ -67,34 +67,15 @@ const Browser: React.FC = () => {
   };
 
   const handleBack = () => {
-    if (servoBackend.isConnected()) {
-      servoBackend.goBack(activeTabId);
-    } else {
-      // In a real implementation, this would use browser history
-      console.log('Back navigation not implemented');
-    }
+    servoBackend.goBack(activeTabId);
   };
 
   const handleForward = () => {
-    if (servoBackend.isConnected()) {
-      servoBackend.goForward(activeTabId);
-    } else {
-      // In a real implementation, this would use browser history
-      console.log('Forward navigation not implemented');
-    }
+    servoBackend.goForward(activeTabId);
   };
 
   const handleRefresh = () => {
-    if (servoBackend.isConnected()) {
-      servoBackend.refresh(activeTabId);
-    } else {
-      // Force iframe reload by adding a timestamp parameter
-      if (activeTab?.url) {
-        const url = new URL(activeTab.url);
-        url.searchParams.set('_refresh', Date.now().toString());
-        handleUrlChange(url.toString());
-      }
-    }
+    servoBackend.refresh(activeTabId);
   };
 
   return (
@@ -115,7 +96,7 @@ const Browser: React.FC = () => {
         canGoBack={false}
         canGoForward={false}
       />
-      <UnifiedBrowserView
+      <ServoView
         tabId={activeTabId}
         url={activeTab?.url || ''}
         onTitleChange={handleTitleChange}
