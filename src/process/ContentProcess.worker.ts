@@ -10,6 +10,10 @@
  * Similar to Firefox's content process that renders web pages.
  * 
  * This file runs in a Web Worker context, separate from the main thread.
+ * 
+ * NOTE: For real Servo integration, this worker communicates with a Servo
+ * backend server via the main process. The actual rendering happens in
+ * the Servo process managed by the backend server.
  */
 
 import type { MainProcessMessage, ContentProcessMessage } from './ProcessMessages';
@@ -22,7 +26,6 @@ class ContentProcess {
   private currentUrl: string = '';
   private history: string[] = [];
   private historyIndex: number = -1;
-  private servoBackend: ServoBackendInterface | null = null;
 
   constructor() {
     console.log('[ContentProcess] Worker process starting');
@@ -38,32 +41,7 @@ class ContentProcess {
       this.handleMainProcessMessage(event.data);
     });
 
-    // Initialize Servo backend for this content process
-    this.initializeServoBackend();
-
     console.log('[ContentProcess] Worker process initialized');
-  }
-
-  /**
-   * Initialize Servo backend for content rendering
-   */
-  private initializeServoBackend(): void {
-    // In a real implementation, this would initialize Servo rendering engine
-    // For now, we simulate Servo behavior
-    this.servoBackend = new MockServoBackend();
-    
-    // Set up event handlers from Servo
-    this.servoBackend.on('titleChange', (title: string) => {
-      this.handleTitleChange(title);
-    });
-
-    this.servoBackend.on('urlChange', (url: string) => {
-      this.handleUrlChange(url);
-    });
-
-    this.servoBackend.on('loadComplete', (url: string) => {
-      this.handleLoadComplete(url);
-    });
   }
 
   /**
@@ -105,6 +83,9 @@ class ContentProcess {
 
   /**
    * Navigate to a URL
+   * 
+   * In real implementation, this would send navigation command to Servo via
+   * the backend bridge, and Servo would handle the actual page loading.
    */
   private navigate(url: string): void {
     if (!url) return;
@@ -127,10 +108,39 @@ class ContentProcess {
     this.historyIndex = this.history.length - 1;
     this.currentUrl = url;
 
-    // Delegate to Servo backend for actual rendering
-    if (this.servoBackend) {
-      this.servoBackend.loadUrl(url);
-    }
+    // In real implementation, Servo backend would load the URL and send back events
+    // For now, simulate the events
+    this.simulatePageLoad(url);
+  }
+
+  /**
+   * Simulate page load (replace with real Servo events)
+   */
+  private simulatePageLoad(url: string): void {
+    // Simulate async page load
+    setTimeout(() => {
+      const title = this.extractTitleFromUrl(url);
+      
+      this.sendToMainProcess({
+        type: 'titleChange',
+        tabId: this.tabId,
+        title: title,
+      });
+
+      this.sendToMainProcess({
+        type: 'urlChange',
+        tabId: this.tabId,
+        url: url,
+      });
+
+      setTimeout(() => {
+        this.sendToMainProcess({
+          type: 'loadComplete',
+          tabId: this.tabId,
+          url: url,
+        });
+      }, 100);
+    }, 300);
   }
 
   /**
@@ -142,15 +152,13 @@ class ContentProcess {
       const url = this.history[this.historyIndex];
       this.currentUrl = url;
       
-      if (this.servoBackend) {
-        this.servoBackend.loadUrl(url);
-      }
-
       this.sendToMainProcess({
         type: 'urlChange',
         tabId: this.tabId,
         url: url,
       });
+
+      this.simulatePageLoad(url);
     }
   }
 
@@ -163,15 +171,13 @@ class ContentProcess {
       const url = this.history[this.historyIndex];
       this.currentUrl = url;
       
-      if (this.servoBackend) {
-        this.servoBackend.loadUrl(url);
-      }
-
       this.sendToMainProcess({
         type: 'urlChange',
         tabId: this.tabId,
         url: url,
       });
+
+      this.simulatePageLoad(url);
     }
   }
 
@@ -179,44 +185,22 @@ class ContentProcess {
    * Refresh current page
    */
   private refresh(): void {
-    if (this.currentUrl && this.servoBackend) {
+    if (this.currentUrl) {
       console.log(`[ContentProcess] Refreshing ${this.currentUrl}`);
-      this.servoBackend.loadUrl(this.currentUrl);
+      this.simulatePageLoad(this.currentUrl);
     }
   }
 
   /**
-   * Handle title change from Servo
+   * Extract title from URL
    */
-  private handleTitleChange(title: string): void {
-    this.sendToMainProcess({
-      type: 'titleChange',
-      tabId: this.tabId,
-      title: title,
-    });
-  }
-
-  /**
-   * Handle URL change from Servo (e.g., redirects)
-   */
-  private handleUrlChange(url: string): void {
-    this.currentUrl = url;
-    this.sendToMainProcess({
-      type: 'urlChange',
-      tabId: this.tabId,
-      url: url,
-    });
-  }
-
-  /**
-   * Handle load complete from Servo
-   */
-  private handleLoadComplete(url: string): void {
-    this.sendToMainProcess({
-      type: 'loadComplete',
-      tabId: this.tabId,
-      url: url,
-    });
+  private extractTitleFromUrl(url: string): string {
+    try {
+      const urlObj = new URL(url);
+      return urlObj.hostname || 'New Tab';
+    } catch {
+      return 'New Tab';
+    }
   }
 
   /**
@@ -231,69 +215,7 @@ class ContentProcess {
    */
   private shutdown(): void {
     console.log('[ContentProcess] Shutting down');
-    if (this.servoBackend) {
-      this.servoBackend.destroy();
-    }
     // Worker will be terminated by main process
-  }
-}
-
-/**
- * Mock Servo Backend for Content Process
- * In a real implementation, this would communicate with actual Servo
- */
-interface ServoBackendInterface {
-  loadUrl(url: string): void;
-  on(event: string, handler: (data: string) => void): void;
-  destroy(): void;
-}
-
-class MockServoBackend implements ServoBackendInterface {
-  private eventHandlers: Map<string, (data: string) => void> = new Map();
-
-  loadUrl(url: string): void {
-    console.log('[MockServo] Loading URL:', url);
-    
-    // Simulate page load delay
-    setTimeout(() => {
-      // Extract title from URL
-      const title = this.extractTitleFromUrl(url);
-      
-      // Emit events
-      const titleHandler = this.eventHandlers.get('titleChange');
-      if (titleHandler) {
-        titleHandler(title);
-      }
-
-      const urlHandler = this.eventHandlers.get('urlChange');
-      if (urlHandler) {
-        urlHandler(url);
-      }
-
-      setTimeout(() => {
-        const loadHandler = this.eventHandlers.get('loadComplete');
-        if (loadHandler) {
-          loadHandler(url);
-        }
-      }, 100);
-    }, 300);
-  }
-
-  on(event: string, handler: (data: string) => void): void {
-    this.eventHandlers.set(event, handler);
-  }
-
-  destroy(): void {
-    this.eventHandlers.clear();
-  }
-
-  private extractTitleFromUrl(url: string): string {
-    try {
-      const urlObj = new URL(url);
-      return urlObj.hostname || 'New Tab';
-    } catch {
-      return 'New Tab';
-    }
   }
 }
 

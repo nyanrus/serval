@@ -43,8 +43,9 @@ See [TWO_PROCESS_ARCHITECTURE.md](TWO_PROCESS_ARCHITECTURE.md) for detailed docu
 
 - Node.js (v18 or higher recommended)
 - npm or yarn
+- **For real Servo integration**: Rust, Cargo, and Servo dependencies (see [SERVO_INTEGRATION_REAL.md](SERVO_INTEGRATION_REAL.md))
 
-### Quick Start
+### Quick Start (Development Mode)
 
 ```bash
 # Install dependencies
@@ -54,9 +55,30 @@ npm install
 npm run dev
 ```
 
-The browser will be available at `http://localhost:5173/`. The development server includes a mock Servo backend, so you can test the UI and navigation features without installing Servo.
+The browser will be available at `http://localhost:5173/`. By default, it uses a mock Servo backend for development.
 
-For detailed setup instructions, see [QUICKSTART.md](QUICKSTART.md).
+### Using Real Servo Backend
+
+For actual browser functionality with real web rendering:
+
+```bash
+# 1. Build Servo backend server
+cd servo-backend
+cargo build --release
+
+# 2. Start the backend server
+cargo run --release
+# Listens on ws://localhost:8080
+
+# 3. In another terminal, configure frontend
+cd ..
+# Update .env to use websocket mode (see .env.example)
+
+# 4. Start frontend
+npm run dev
+```
+
+See [SERVO_INTEGRATION_REAL.md](SERVO_INTEGRATION_REAL.md) for complete integration guide.
 
 ### Installation
 
