@@ -38,7 +38,7 @@ const Browser: React.FC = () => {
   };
 
   const handleNewTab = () => {
-    const newId = Date.now().toString();
+    const newId = crypto.randomUUID();
     const newTab: Tab = { id: newId, title: 'New Tab', url: '' };
     setTabs((prevTabs) => [...prevTabs, newTab]);
     setActiveTabId(newId);
@@ -75,9 +75,11 @@ const Browser: React.FC = () => {
   };
 
   const handleRefresh = () => {
-    // Force re-render of the iframe by updating the URL
+    // Force iframe reload by adding a timestamp parameter
     if (activeTab?.url) {
-      handleUrlChange(activeTab.url + '');
+      const url = new URL(activeTab.url);
+      url.searchParams.set('_refresh', Date.now().toString());
+      handleUrlChange(url.toString());
     }
   };
 
