@@ -38,7 +38,7 @@ npm install
 npm run dev
 ```
 
-The browser will be available at `http://localhost:5173/`. The development server includes a mock Servo backend, so you can test the UI without installing Servo.
+The browser will be available at `http://localhost:5173/`. The development server includes a mock Servo backend, so you can test the UI and navigation features without installing Servo.
 
 For detailed setup instructions, see [QUICKSTART.md](QUICKSTART.md).
 
@@ -129,8 +129,8 @@ Provides navigation functionality:
 - Automatic protocol handling (adds https:// if missing)
 
 ### ServoView
-Displays web content using Servo engine:
-- Communicates with Servo backend for rendering
+Displays web content through Servo backend:
+- Communicates with Servo backend (or mock in development) for rendering
 - Handles page title updates
 - Manages navigation events
 
