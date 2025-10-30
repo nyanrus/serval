@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import TabBar from './components/TabBar';
 import type { Tab } from './components/TabBar';
 import AddressBar from './components/AddressBar';
-import BrowserView from './components/BrowserView';
+import UnifiedBrowserView from './components/UnifiedBrowserView';
+import { getServoBackend } from './backend/ServoBackend';
 import './Browser.css';
 
 const Browser: React.FC = () => {
@@ -10,6 +11,7 @@ const Browser: React.FC = () => {
     { id: '1', title: 'New Tab', url: '' },
   ]);
   const [activeTabId, setActiveTabId] = useState<string>('1');
+  const servoBackend = getServoBackend();
 
   const activeTab = tabs.find((tab) => tab.id === activeTabId);
 
@@ -65,21 +67,33 @@ const Browser: React.FC = () => {
   };
 
   const handleBack = () => {
-    // In a real implementation, this would use browser history
-    console.log('Back navigation not implemented');
+    if (servoBackend.isConnected()) {
+      servoBackend.goBack(activeTabId);
+    } else {
+      // In a real implementation, this would use browser history
+      console.log('Back navigation not implemented');
+    }
   };
 
   const handleForward = () => {
-    // In a real implementation, this would use browser history
-    console.log('Forward navigation not implemented');
+    if (servoBackend.isConnected()) {
+      servoBackend.goForward(activeTabId);
+    } else {
+      // In a real implementation, this would use browser history
+      console.log('Forward navigation not implemented');
+    }
   };
 
   const handleRefresh = () => {
-    // Force iframe reload by adding a timestamp parameter
-    if (activeTab?.url) {
-      const url = new URL(activeTab.url);
-      url.searchParams.set('_refresh', Date.now().toString());
-      handleUrlChange(url.toString());
+    if (servoBackend.isConnected()) {
+      servoBackend.refresh(activeTabId);
+    } else {
+      // Force iframe reload by adding a timestamp parameter
+      if (activeTab?.url) {
+        const url = new URL(activeTab.url);
+        url.searchParams.set('_refresh', Date.now().toString());
+        handleUrlChange(url.toString());
+      }
     }
   };
 
@@ -101,7 +115,8 @@ const Browser: React.FC = () => {
         canGoBack={false}
         canGoForward={false}
       />
-      <BrowserView
+      <UnifiedBrowserView
+        tabId={activeTabId}
         url={activeTab?.url || ''}
         onTitleChange={handleTitleChange}
         onUrlChange={handleUrlChange}

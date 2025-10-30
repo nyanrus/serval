@@ -139,11 +139,37 @@ Displays web content:
 
 ## About Servo Integration
 
-This browser UI is designed to work with the Servo browser engine (github.com/servo/servo). The current implementation uses iframes for web content rendering, but the architecture is structured to allow integration with Servo's rendering engine through:
+Serval is designed as a frontend UI for the [Servo browser engine](https://github.com/servo/servo), similar to how Firefox's UI sits on top of Gecko. The architecture supports two rendering modes:
 
-1. The `BrowserView` component can be adapted to use Servo's WebView
-2. The navigation state management is separated for easy integration
-3. The modular component structure allows swapping the rendering backend
+1. **Servo Backend Mode** (Production): Uses Servo engine for actual web rendering with full browser capabilities
+2. **Iframe Fallback Mode** (Development): Uses standard web iframes for rapid development and testing
+
+### How It Works
+
+The integration consists of three layers:
+
+1. **Frontend Layer** (React/TypeScript): The UI components you see (TabBar, AddressBar, etc.)
+2. **Backend Bridge**: A native bridge that communicates between the React frontend and Servo
+3. **Servo Engine**: The actual browser engine written in Rust that renders web content
+
+### Key Components
+
+- **ServoBackend** (`src/backend/ServoBackend.ts`): Manages communication with Servo through message passing
+- **ServoView** (`src/components/ServoView.tsx`): React component that displays Servo-rendered content
+- **UnifiedBrowserView** (`src/components/UnifiedBrowserView.tsx`): Adapter that automatically selects between Servo and iframe modes
+
+### Getting Started with Servo
+
+For detailed information about setting up and using Servo as the backend, see [SERVO_INTEGRATION.md](SERVO_INTEGRATION.md).
+
+**Quick Start (Development Mode)**:
+```bash
+npm install
+npm run dev  # Runs with iframe fallback - no Servo required
+```
+
+**Production Mode (with Servo)**:
+Requires building Servo and setting up a backend bridge. See [SERVO_INTEGRATION.md](SERVO_INTEGRATION.md) for complete instructions.
 
 ## Development Tips
 
