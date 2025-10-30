@@ -1,1 +1,168 @@
 # serval
+
+A simple browser UI built with Vite and React, featuring a Firefox-like interface with tab management and browseable internet capabilities.
+
+## Features
+
+- **Tab Management**: Create, switch, and close multiple tabs
+- **Address Bar**: Navigate to URLs or search with automatic protocol handling
+- **Navigation Controls**: Back, forward, and refresh buttons
+- **Fast Development**: Vite's Hot Module Replacement (HMR) for instant updates
+- **Firefox-like UI**: Dark theme with modern browser aesthetics
+
+## Screenshots
+
+### Initial Browser View
+![Browser Initial State](https://github.com/user-attachments/assets/531a504d-0b1f-49d6-85a9-571be0428467)
+
+### Browsing a Website
+![Browser with URL](https://github.com/user-attachments/assets/37e88299-d6a1-49ab-a2c5-812b48bebf76)
+
+### Multiple Tabs
+![Browser Multiple Tabs](https://github.com/user-attachments/assets/c02461ea-a85c-4d31-8f67-8b7ed1a0c026)
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher recommended)
+- npm or yarn
+
+### Installation
+
+```bash
+# Install dependencies
+npm install
+```
+
+### Development
+
+```bash
+# Start development server with HMR
+npm run dev
+```
+
+The browser will be available at `http://localhost:5173/`. Changes to the code will automatically update in the browser thanks to Vite's HMR.
+
+### Build
+
+```bash
+# Build for production
+npm run build
+```
+
+The built files will be in the `dist/` directory.
+
+### Preview Production Build
+
+```bash
+# Preview the production build locally
+npm run preview
+```
+
+### Linting
+
+```bash
+# Run ESLint
+npm run lint
+```
+
+## Project Structure
+
+```
+serval/
+├── src/
+│   ├── components/
+│   │   ├── TabBar.tsx          # Tab management component
+│   │   ├── TabBar.css
+│   │   ├── AddressBar.tsx      # URL/search input component
+│   │   ├── AddressBar.css
+│   │   ├── BrowserView.tsx     # Web content display component
+│   │   └── BrowserView.css
+│   ├── Browser.tsx              # Main browser component
+│   ├── Browser.css
+│   ├── App.tsx                  # Application entry point
+│   ├── main.tsx                 # React root
+│   └── index.css                # Global styles
+├── public/                      # Static assets
+├── index.html                   # HTML template
+├── vite.config.ts              # Vite configuration
+├── tsconfig.json               # TypeScript configuration
+└── package.json                # Dependencies and scripts
+```
+
+## Component Overview
+
+### Browser
+The main component that orchestrates all sub-components and manages the browser state.
+
+### TabBar
+Manages multiple tabs with:
+- Tab creation (+ button)
+- Tab switching (click on tab)
+- Tab closing (× button)
+- Active tab highlighting
+
+### AddressBar
+Provides navigation functionality:
+- URL input with auto-complete
+- Search query support (redirects to Google)
+- Navigation controls (back, forward, refresh)
+- Automatic protocol handling (adds https:// if missing)
+
+### BrowserView
+Displays web content:
+- Uses iframe for content rendering
+- Handles page title updates
+- Cross-origin safety with sandbox attributes
+
+## Browser Features
+
+### URL Handling
+- **Direct URLs**: Enter `example.com` → navigates to `https://example.com`
+- **Full URLs**: Enter `https://github.com` → navigates directly
+- **Search**: Enter `how to use React` → searches on Google
+
+### Tab Management
+- Create unlimited tabs with the + button
+- Click on any tab to switch to it
+- Close tabs with the × button (minimum 1 tab always remains)
+- Tab titles automatically update based on page content
+
+## Technology Stack
+
+- **React 19**: Latest React with modern hooks
+- **TypeScript**: Type-safe development
+- **Vite 7**: Lightning-fast build tool with HMR
+- **CSS**: Component-scoped styling
+- **ESLint**: Code quality and consistency
+
+## About Servo Integration
+
+This browser UI is designed to work with the Servo browser engine (github.com/servo/servo). The current implementation uses iframes for web content rendering, but the architecture is structured to allow integration with Servo's rendering engine through:
+
+1. The `BrowserView` component can be adapted to use Servo's WebView
+2. The navigation state management is separated for easy integration
+3. The modular component structure allows swapping the rendering backend
+
+## Development Tips
+
+### Hot Module Replacement (HMR)
+Vite's HMR allows you to see changes instantly:
+1. Start the dev server: `npm run dev`
+2. Edit any `.tsx` or `.css` file
+3. Save the file
+4. The browser updates automatically without full reload
+
+### Adding New Features
+- New UI components go in `src/components/`
+- Browser-level state is managed in `src/Browser.tsx`
+- Styling follows component-scoped CSS pattern
+
+## License
+
+This project is open source and available under the MIT License.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
