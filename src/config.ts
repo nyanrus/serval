@@ -8,7 +8,7 @@ export interface ServalConfig {
   // Servo backend configuration
   servo: {
     // Connection type
-    connectionType: 'websocket' | 'electron' | 'mock';
+    connectionType: 'websocket' | 'electron';
     
     // WebSocket URL (for WebSocket connection type)
     websocketUrl?: string;
@@ -30,10 +30,10 @@ export interface ServalConfig {
   };
 }
 
-// Default configuration
+// Default configuration - Always use real Servo backend
 export const defaultConfig: ServalConfig = {
   servo: {
-    connectionType: 'mock',
+    connectionType: 'websocket',
     websocketUrl: 'ws://localhost:8080',
     debug: true,
   },

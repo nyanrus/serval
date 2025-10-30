@@ -4,110 +4,15 @@
  * This file initializes the Servo backend bridge.
  * It should be imported early in the application lifecycle.
  * 
- * Supports three modes:
- * 1. Mock - Simulates Servo for development (no backend needed)
- * 2. WebSocket - Connects to real Servo backend server via WebSocket
- * 3. Electron/Tauri - Platform-provided Servo integration
+ * Always connects to real Servo backend server via WebSocket.
  */
 
 import { getConfig } from './config';
 import { ServoWebSocketBridge } from './process/ServoWebSocketBridge';
 
-// Type definitions for bridge implementations
-interface ServoMessage {
-  type: 'navigate' | 'back' | 'forward' | 'refresh' | 'close' | 'ready' | 'titleChange' | 'urlChange' | 'loadStart' | 'loadComplete';
-  tabId?: string;
-  url?: string;
-  title?: string;
-  data?: unknown;
-}
-
-/**
- * Mock Bridge for Development
- * Simulates Servo responses without requiring actual Servo installation
- */
-class MockServoBridge {
-  private tabs: Map<string, { url: string; title: string }> = new Map();
-
-  constructor() {
-    this.setupMockBackend();
-    console.log('[Serval] Mock Servo backend initialized (development mode)');
-  }
-
-  private setupMockBackend(): void {
-    window.__SERVO_BACKEND__ = {
-      postMessage: (message: ServoMessage) => {
-        this.handleCommand(message);
-      }
-    };
-  }
-
-  private handleCommand(message: ServoMessage): void {
-    const { type, tabId, url } = message;
-
-    switch (type) {
-      case 'navigate':
-        if (tabId && url) {
-          // Simulate navigation delay
-          setTimeout(() => {
-            this.sendEvent({ type: 'loadStart', tabId, url });
-            
-            setTimeout(() => {
-              const title = this.extractTitleFromUrl(url);
-              this.tabs.set(tabId, { url, title });
-              
-              this.sendEvent({ type: 'titleChange', tabId, title });
-              this.sendEvent({ type: 'loadComplete', tabId, url });
-            }, 300);
-          }, 50);
-        }
-        break;
-
-      case 'back':
-      case 'forward':
-      case 'refresh':
-        console.log(`[Mock Servo] ${type} for tab ${tabId}`);
-        if (tabId) {
-          const tab = this.tabs.get(tabId);
-          if (tab) {
-            setTimeout(() => {
-              this.sendEvent({ type: 'loadStart', tabId, url: tab.url });
-              setTimeout(() => {
-                this.sendEvent({ type: 'loadComplete', tabId, url: tab.url });
-              }, 200);
-            }, 50);
-          }
-        }
-        break;
-
-      case 'close':
-        if (tabId) {
-          this.tabs.delete(tabId);
-          console.log(`[Mock Servo] Closed tab ${tabId}`);
-        }
-        break;
-    }
-  }
-
-  private sendEvent(message: ServoMessage): void {
-    window.postMessage({
-      source: 'servo-backend',
-      message
-    }, '*');
-  }
-
-  private extractTitleFromUrl(url: string): string {
-    try {
-      const urlObj = new URL(url);
-      return urlObj.hostname;
-    } catch {
-      return 'New Tab';
-    }
-  }
-}
-
 /**
  * Initialize the Servo backend bridge
+ * Always uses WebSocket connection to real Servo backend
  */
 export function initializeBackend(): void {
   const config = getConfig();
@@ -118,18 +23,9 @@ export function initializeBackend(): void {
     return;
   }
 
-  const isDevelopment = import.meta.env?.DEV;
-  
-  // Mode 1: Mock backend for development
-  if (isDevelopment && config.servo.connectionType === 'mock') {
-    console.log('[Serval] Initializing mock Servo backend (development mode)');
-    new MockServoBridge();
-    return;
-  }
-
-  // Mode 2: WebSocket connection to real Servo backend server
+  // WebSocket connection to real Servo backend server
   if (config.servo.connectionType === 'websocket' && config.servo.websocketUrl) {
-    console.log(`[Serval] Connecting to real Servo backend at ${config.servo.websocketUrl}`);
+    console.log(`[Serval] Connecting to Servo backend at ${config.servo.websocketUrl}`);
     new ServoWebSocketBridge({
       websocketUrl: config.servo.websocketUrl,
       debug: config.servo.debug || false,
@@ -137,14 +33,14 @@ export function initializeBackend(): void {
     return;
   }
 
-  // Mode 3: Platform-provided backend (Electron/Tauri)
+  // Platform-provided backend (Electron/Tauri)
   if (config.servo.connectionType === 'electron') {
     console.log('[Serval] Waiting for Electron-provided Servo backend');
     // Electron preload script should set up window.__SERVO_BACKEND__
     return;
   }
 
-  // Fallback
-  console.warn('[Serval] No backend configuration found, using mock backend');
-  new MockServoBridge();
+  // No fallback - Servo backend is required
+  console.error('[Serval] No Servo backend configured! Please ensure Servo backend server is running.');
+  console.error('[Serval] Start backend: cd servo-backend && cargo run --release');
 }

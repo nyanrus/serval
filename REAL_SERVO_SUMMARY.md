@@ -2,7 +2,7 @@
 
 ## Overview
 
-This implementation replaces the mock Servo backend with a production-ready architecture that can connect to actual Servo browser engine.
+Serval uses a production-ready architecture that connects to actual Servo browser engine via WebSocket. **No mock mode - Servo backend is required.**
 
 ## What Was Implemented
 
@@ -37,8 +37,8 @@ Frontend client that:
 
 **Location**: `src/process/ContentProcess.worker.ts`
 
-Removed mock Servo backend, now works with:
-- Real backend server via main process
+Works with real backend server:
+- Communicates via main process
 - Simplified page load simulation
 - Ready for actual Servo events
 
@@ -58,20 +58,13 @@ Removed mock Servo backend, now works with:
 ### 5. Updated Configuration
 
 - `.gitignore` - Excludes Rust build artifacts
-- `src/initBackend.ts` - Supports WebSocket mode
-- `README.md` - Updated with real integration instructions
+- `src/initBackend.ts` - Always uses WebSocket connection
+- `src/config.ts` - Removed mock option
+- `README.md` - Updated setup instructions
 
 ## Architecture
 
-### Development Mode (Mock)
-
-```
-Frontend (React) → Mock Backend (In-Browser)
-```
-
-No external dependencies, works out of the box.
-
-### Production Mode (Real Servo)
+**Always uses real Servo backend:**
 
 ```
 Frontend (React)
@@ -120,19 +113,17 @@ impl ServoInstance {
 ### Step 3: Build and Run
 
 ```bash
-# Terminal 1: Backend Server
+# Terminal 1: Backend Server (Required!)
 cd servo-backend
 cargo build --release
 cargo run --release
 
 # Terminal 2: Frontend
 cd ..
-# Configure .env:
-# VITE_SERVO_MODE=websocket
-# VITE_SERVO_WEBSOCKET_URL=ws://localhost:8080
-
 npm run dev
 ```
+
+The frontend will automatically connect to `ws://localhost:8080`.
 
 ## Message Protocol
 
@@ -159,27 +150,20 @@ npm run dev
 
 ## Key Features
 
-✅ **Production Ready**: Real WebSocket server, not a mock
+✅ **Production Ready**: Real WebSocket server
 ✅ **Tab Management**: Separate Servo instance per tab
 ✅ **History**: Back/forward/refresh support
 ✅ **Auto-Reconnect**: Resilient connection handling
 ✅ **Typed Protocol**: Full TypeScript/Rust type safety
 ✅ **Extensible**: Easy to add Servo API calls
-✅ **Dual Mode**: Mock for development, real for production
+✅ **Always Real**: No mock mode, Servo backend required
 
-## What Changed from Mock
+## Architecture Benefits
 
-### Before (Mock)
-- Simulated Servo in browser
-- No real web rendering
-- Fake title extraction
-- No actual navigation
-
-### After (Real)
-- WebSocket to backend server
-- Backend manages real Servo instances
-- Real page loading (when Servo integrated)
-- Actual web rendering capabilities
+- **Real Browser Engine**: Connects to actual Servo via WebSocket
+- **Backend manages Servo instances**: One per tab
+- **Real page loading**: When Servo API is integrated
+- **Actual web rendering**: Production-ready capabilities
 
 ## Integration Points
 

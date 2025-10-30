@@ -43,42 +43,45 @@ See [TWO_PROCESS_ARCHITECTURE.md](TWO_PROCESS_ARCHITECTURE.md) for detailed docu
 
 - Node.js (v18 or higher recommended)
 - npm or yarn
-- **For real Servo integration**: Rust, Cargo, and Servo dependencies (see [SERVO_INTEGRATION_REAL.md](SERVO_INTEGRATION_REAL.md))
+- **Rust and Cargo** (for Servo backend server)
+- Servo dependencies (see [SERVO_INTEGRATION_REAL.md](SERVO_INTEGRATION_REAL.md))
 
-### Quick Start (Development Mode)
+### Setup
+
+**Important**: Serval requires a running Servo backend server. There is no mock mode.
 
 ```bash
-# Install dependencies
+# 1. Install frontend dependencies
 npm install
 
-# Start development server with HMR
-npm run dev
-```
-
-The browser will be available at `http://localhost:5173/`. By default, it uses a mock Servo backend for development.
-
-### Using Real Servo Backend
-
-For actual browser functionality with real web rendering:
-
-```bash
-# 1. Build Servo backend server
+# 2. Build Servo backend server
 cd servo-backend
 cargo build --release
 
-# 2. Start the backend server
+# 3. Start the backend server (required!)
 cargo run --release
-# Listens on ws://localhost:8080
+# Server will listen on ws://localhost:8080
+```
 
-# 3. In another terminal, configure frontend
-cd ..
-# Update .env to use websocket mode (see .env.example)
+In a new terminal:
 
+```bash
 # 4. Start frontend
 npm run dev
 ```
 
-See [SERVO_INTEGRATION_REAL.md](SERVO_INTEGRATION_REAL.md) for complete integration guide.
+The browser will be available at `http://localhost:5173/` and will connect to the Servo backend at `ws://localhost:8080`.
+
+### Configuration
+
+Configure the WebSocket URL in `.env` (optional, defaults to `ws://localhost:8080`):
+
+```bash
+VITE_SERVO_WEBSOCKET_URL=ws://localhost:8080
+VITE_SERVO_DEBUG=true
+```
+
+See [SERVO_INTEGRATION_REAL.md](SERVO_INTEGRATION_REAL.md) for integrating with actual Servo browser engine.
 
 ### Installation
 
