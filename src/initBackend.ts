@@ -1,7 +1,7 @@
 /**
  * Initialize Servo Backend Bridge
  * 
- * This file initializes the appropriate backend bridge based on the environment.
+ * This file initializes the Servo backend bridge.
  * It should be imported early in the application lifecycle.
  */
 
@@ -101,7 +101,7 @@ class MockServoBridge {
 }
 
 /**
- * Initialize the appropriate backend bridge
+ * Initialize the Servo backend bridge
  */
 export function initializeBackend(): void {
   const config = getConfig();
@@ -112,14 +112,11 @@ export function initializeBackend(): void {
     return;
   }
 
-  // In development mode with auto or mock, use MockServoBridge
+  // In development mode with mock connection, use MockServoBridge
   const isDevelopment = import.meta.env?.DEV;
   
-  if (isDevelopment && (config.mode === 'auto' || config.servo?.connectionType === 'mock')) {
+  if (isDevelopment && config.servo.connectionType === 'mock') {
     new MockServoBridge();
-  } else if (config.mode === 'iframe') {
-    // Don't initialize any bridge - will use iframe fallback
-    console.log('[Serval] Using iframe fallback mode');
   } else {
     // Production mode - backend bridge should be provided by the platform
     console.log('[Serval] Waiting for platform-provided Servo backend');

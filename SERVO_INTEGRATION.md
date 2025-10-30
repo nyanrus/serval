@@ -15,11 +15,7 @@ Serval is designed as a frontend UI for the Servo browser engine, similar to how
 │  │  TabBar    │  │    AddressBar        │  │
 │  └────────────┘  └──────────────────────┘  │
 │  ┌──────────────────────────────────────┐  │
-│  │      UnifiedBrowserView              │  │
-│  │  ┌────────────┐  ┌───────────────┐  │  │
-│  │  │ ServoView  │  │ BrowserView   │  │  │
-│  │  │  (Primary) │  │  (Fallback)   │  │  │
-│  │  └────────────┘  └───────────────┘  │  │
+│  │          ServoView                   │  │
 │  └──────────────────────────────────────┘  │
 └─────────────────┬───────────────────────────┘
                   │ IPC/Message Passing
@@ -51,11 +47,6 @@ Serval is designed as a frontend UI for the Servo browser engine, similar to how
    - React component that renders content from Servo
    - Listens to Servo events (title changes, URL updates)
    - Sends navigation commands to Servo
-
-3. **UnifiedBrowserView.tsx**:
-   - Adapter component that chooses between ServoView and iframe-based BrowserView
-   - Automatically falls back to iframe if Servo is not available
-   - Allows development without Servo dependency
 
 ### Backend Bridge Layer
 
@@ -115,16 +106,16 @@ Examples:
 
 ## Setup and Configuration
 
-### Development Mode (Iframe Fallback)
+### Development Mode (Mock Backend)
 
-By default, Serval runs in development mode using iframes for rendering:
+By default, Serval runs in development mode using a mock Servo backend:
 
 ```bash
 npm install
 npm run dev
 ```
 
-This allows you to develop and test the UI without needing Servo installed.
+This allows you to develop and test the UI without needing Servo installed. The mock backend simulates Servo responses for navigation and tab management.
 
 ### Production Mode (Servo Backend)
 
@@ -266,8 +257,8 @@ backend.goBack('tab-1');
 
 - [x] Create ServoBackend abstraction layer
 - [x] Implement ServoView component
-- [x] Add UnifiedBrowserView adapter
 - [x] Integrate with Browser component
+- [x] Remove iframe fallback for Servo-only architecture
 - [ ] Implement Electron/Tauri backend bridge
 - [ ] Add proper history management
 - [ ] Implement tab isolation
@@ -278,8 +269,8 @@ backend.goBack('tab-1');
 
 When contributing to Servo integration:
 
-1. Ensure iframe fallback mode still works
-2. Add tests for both Servo and iframe modes
+1. Ensure mock backend mode still works for development
+2. Add tests for Servo integration
 3. Document any new message types
 4. Follow the existing code style
 5. Update this document with any changes

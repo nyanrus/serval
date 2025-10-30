@@ -5,14 +5,8 @@
  */
 
 export interface ServalConfig {
-  // Backend mode: 'servo', 'iframe', or 'auto'
-  // - 'servo': Always use Servo backend (will show error if not available)
-  // - 'iframe': Always use iframe fallback
-  // - 'auto': Use Servo if available, fallback to iframe otherwise
-  mode: 'servo' | 'iframe' | 'auto';
-
   // Servo backend configuration
-  servo?: {
+  servo: {
     // Connection type
     connectionType: 'websocket' | 'electron' | 'mock';
     
@@ -38,7 +32,6 @@ export interface ServalConfig {
 
 // Default configuration
 export const defaultConfig: ServalConfig = {
-  mode: 'auto',
   servo: {
     connectionType: 'mock',
     websocketUrl: 'ws://localhost:8080',
@@ -52,17 +45,15 @@ export const defaultConfig: ServalConfig = {
 
 // Get configuration from environment or use defaults
 export function getConfig(): ServalConfig {
-  const envMode = import.meta.env?.VITE_SERVO_MODE as ServalConfig['mode'] | undefined;
   const envWebSocketUrl = import.meta.env?.VITE_SERVO_WEBSOCKET_URL as string | undefined;
   const envDebug = import.meta.env?.VITE_SERVO_DEBUG === 'true';
 
   return {
-    mode: envMode || defaultConfig.mode,
     servo: {
-      connectionType: defaultConfig.servo?.connectionType || 'mock',
-      websocketUrl: envWebSocketUrl || defaultConfig.servo?.websocketUrl,
-      debug: envDebug || defaultConfig.servo?.debug,
-      userAgent: defaultConfig.servo?.userAgent,
+      connectionType: defaultConfig.servo.connectionType,
+      websocketUrl: envWebSocketUrl || defaultConfig.servo.websocketUrl,
+      debug: envDebug || defaultConfig.servo.debug,
+      userAgent: defaultConfig.servo.userAgent,
     },
     development: defaultConfig.development,
   };
