@@ -28,6 +28,20 @@ A simple browser UI built with Vite and React, featuring a Firefox-like interfac
 - Node.js (v18 or higher recommended)
 - npm or yarn
 
+### Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server with HMR
+npm run dev
+```
+
+The browser will be available at `http://localhost:5173/`. The development server includes a mock Servo backend, so you can test the full integration without installing Servo.
+
+For detailed setup instructions, see [QUICKSTART.md](QUICKSTART.md).
+
 ### Installation
 
 ```bash
