@@ -1,0 +1,187 @@
+/**
+ * ContentView styles
+ */
+
+.content-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #1c1c1c;
+  color: #e8e8e8;
+  overflow: hidden;
+}
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+}
+
+.empty-state h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+  color: #ffffff;
+}
+
+.empty-state p {
+  font-size: 16px;
+  color: #b0b0b0;
+  margin-bottom: 30px;
+}
+
+.architecture-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  margin: 40px 0;
+  padding: 20px;
+  background-color: #252525;
+  border-radius: 8px;
+  max-width: 800px;
+}
+
+.process-box {
+  flex: 1;
+  padding: 20px;
+  border-radius: 6px;
+  min-width: 200px;
+}
+
+.main-process {
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+}
+
+.content-process {
+  background: linear-gradient(135deg, #50c878 0%, #3da75f 100%);
+}
+
+.process-box h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #ffffff;
+}
+
+.process-box p {
+  font-size: 14px;
+  margin-bottom: 12px;
+  color: #e8e8e8;
+  font-weight: 500;
+}
+
+.process-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.process-box li {
+  font-size: 13px;
+  padding: 4px 0;
+  color: #ffffff;
+}
+
+.process-box li::before {
+  content: "✓ ";
+  color: #ffffff;
+  font-weight: bold;
+  margin-right: 6px;
+}
+
+.process-arrow {
+  font-size: 32px;
+  color: #b0b0b0;
+  font-weight: bold;
+}
+
+.instruction {
+  font-size: 14px;
+  color: #888;
+  margin-top: 20px;
+}
+
+.content-frame {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.content-info {
+  padding: 12px 20px;
+  background-color: #252525;
+  border-bottom: 1px solid #383838;
+  font-size: 12px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.content-info p {
+  margin: 0;
+  color: #b0b0b0;
+}
+
+.process-label {
+  margin-left: auto;
+  color: #50c878 !important;
+  font-weight: 600;
+}
+
+.rendered-content {
+  flex: 1;
+  overflow: auto;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.mock-page {
+  padding: 40px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.mock-page h1 {
+  color: #333;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #4a90e2;
+  padding-bottom: 10px;
+}
+
+.mock-page p {
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.mock-content {
+  background-color: #f5f5f5;
+  border-left: 4px solid #50c878;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 4px;
+}
+
+.mock-content p {
+  margin-bottom: 12px;
+}
+
+.mock-content ul {
+  margin-top: 15px;
+  padding-left: 20px;
+}
+
+.mock-content li {
+  color: #333;
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.mock-content strong {
+  color: #4a90e2;
+}
