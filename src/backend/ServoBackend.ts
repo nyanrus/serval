@@ -107,6 +107,13 @@ export class ServoBackend {
    * Handle incoming messages from Servo
    */
   private handleMessage(message: ServoMessage): void {
+    // Validate message type before processing
+    const validTypes = ['navigate', 'back', 'forward', 'refresh', 'close', 'ready', 'titleChange', 'urlChange', 'loadStart', 'loadComplete'];
+    if (!validTypes.includes(message.type)) {
+      console.warn('Invalid message type received:', message.type);
+      return;
+    }
+
     const handler = this.messageHandlers.get(message.type);
     if (handler) {
       handler(message);

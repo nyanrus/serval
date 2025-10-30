@@ -9,7 +9,7 @@ import { getConfig } from './config';
 
 // Type definitions for bridge implementations
 interface ServoMessage {
-  type: string;
+  type: 'navigate' | 'back' | 'forward' | 'refresh' | 'close' | 'ready' | 'titleChange' | 'urlChange' | 'loadStart' | 'loadComplete';
   tabId?: string;
   url?: string;
   title?: string;

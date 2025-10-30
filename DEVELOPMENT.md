@@ -164,6 +164,17 @@ To integrate with Servo browser engine:
 3. Adapt event handling for Servo
 4. Test with actual Servo rendering
 
+**Current Implementation**: 
+The application now includes a complete Servo backend integration layer:
+- **ServoBackend** (`src/backend/ServoBackend.ts`): Manages communication with Servo
+- **ServoView** (`src/components/ServoView.tsx`): React component for Servo rendering
+- **UnifiedBrowserView** (`src/components/UnifiedBrowserView.tsx`): Automatically switches between Servo and iframe modes
+- **Mock Backend** (`src/initBackend.ts`): Development mode simulation of Servo
+
+In development mode (`npm run dev`), a mock Servo backend is automatically initialized, allowing you to test the integration without requiring an actual Servo installation.
+
+For detailed information about Servo integration, see [SERVO_INTEGRATION.md](SERVO_INTEGRATION.md).
+
 ### Potential Features
 
 - History management (back/forward stack)
